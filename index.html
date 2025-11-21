@@ -3,125 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Download Modpack</title>
+    <title>Minecraft Modpack Download</title>
+    
+    <!-- Import a Minecraft-like Font -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
     <style>
+        /* -----------------------------------------------------
+           1. BACKGROUND & LAYOUT
+        ----------------------------------------------------- */
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'VT323', monospace; /* Pixel font */
+            overflow: hidden; /* Prevents scrollbars from the blur effect */
         }
-        h1 { margin-bottom: 10px; }
-        p { color: #666; margin-bottom: 30px; }
-        
-        /* Container to hold buttons side-by-side */
+
+        /* The pseudo-element handles the blurred background image */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -10px; left: -10px; right: -10px; bottom: -10px; /* Extra overlap to hide blur edges */
+            background: url('background.jpg') no-repeat center center;
+            background-size: cover;
+            
+            /* THE MAGIC: Darken and Blur */
+            filter: blur(8px) brightness(0.5); 
+            z-index: -1;
+        }
+
+        /* -----------------------------------------------------
+           2. LOGO IMAGE
+        ----------------------------------------------------- */
+        .logo-container {
+            margin-bottom: 40px;
+            max-width: 90%;
+        }
+
+        .logo-img {
+            max-width: 600px; /* Adjust max width as needed */
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); /* Shadow behind logo */
+            
+            /* OPTIONAL: Slight bobbing animation like the Minecraft title */
+            animation: bob 3s infinite ease-in-out;
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* -----------------------------------------------------
+           3. MINECRAFT BUTTONS
+        ----------------------------------------------------- */
         .button-container {
             display: flex;
-            justify-content: center;
-            gap: 20px; /* Space between buttons */
+            gap: 20px;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
-        .download-btn {
+        .mc-btn {
+            position: relative;
             display: inline-block;
-            padding: 15px 30px;
+            min-width: 220px;
+            padding: 15px 10px;
             text-decoration: none;
-            font-size: 16px;
-            border-radius: 5px;
-            color: white;
-            transition: background-color 0.3s;
-            min-width: 200px;
+            color: #e0e0e0;
+            font-size: 28px; /* Large pixel font size */
+            text-align: center;
+            text-shadow: 2px 2px 0px #3f3f3f; /* Text drop shadow */
+            cursor: pointer;
+            
+            /* The Minecraft Stone Texture color */
+            background-color: #7d7d7d; 
+
+            /* The 3D Bevel Border Effect */
+            border: 2px solid;
+            border-color: #fff #555 #555 #fff; /* Light Top/Left, Dark Bottom/Right */
+            box-shadow: inset -2px -2px 0px #555, inset 2px 2px 0px #fff, 0px 6px 0px #00000050;
+            
+            transition: transform 0.1s;
         }
 
-        /* Specific colors for each button */
-        .zip-btn { background-color: #FFB100; } /* Green */
-        .zip-btn:hover { background-color: #22863a; }
+        /* Hover State (Minecraft buttons turn bluish) */
+        .mc-btn:hover {
+            background-color: #6e85a8; /* The hover blue tint */
+            border-color: #fff #555 #555 #fff;
+            color: #ffffa0; /* Yellow text on hover */
+        }
 
-        .mrpack-btn { background-color: #00FF2F; } /* Blue */
-        .mrpack-btn:hover { background-color: #005f91; }
+        /* Active State (Clicking down) */
+        .mc-btn:active {
+            transform: translateY(4px); /* Push button down */
+            box-shadow: inset -2px -2px 0px #555, inset 2px 2px 0px #fff, 0px 2px 0px #00000050;
+        }
 
-        /* Disabled state (grayed out) */
-        .download-btn.disabled {
-            background-color: #ccc;
+        /* Disabled State */
+        .mc-btn.disabled {
+            background-color: #555;
+            color: #888;
+            border-color: #777 #333 #333 #777;
             pointer-events: none;
-            cursor: default;
+            text-shadow: none;
         }
 
-        .status-text {
-            margin-top: 10px;
-            font-size: 12px;
-            color: #555;
+        .filename-label {
             display: block;
+            margin-top: 8px;
+            font-size: 18px;
+            color: #ddd;
+            text-shadow: 1px 1px 0 #000;
         }
+
     </style>
 </head>
 <body>
 
-    <h1>Download Latest Version</h1>
-    <p>Select the format you need below:</p>
+    <!-- TITLE LOGO -->
+    <div class="logo-container">
+        <!-- Replace 'logo.png' with your actual file -->
+        <img src="logo.png" alt="Modpack Logo" class="logo-img">
+    </div>
 
+    <!-- BUTTONS -->
     <div class="button-container">
+        
         <!-- ZIP BUTTON -->
         <div>
-            <a id="btn-zip" class="download-btn zip-btn disabled" href="#">Searching...</a>
-            <span id="text-zip" class="status-text"></span>
+            <a id="btn-zip" class="mc-btn disabled" href="#">
+                Loading...
+            </a>
+            <span id="text-zip" class="filename-label"></span>
         </div>
 
         <!-- MRPACK BUTTON -->
         <div>
-            <a id="btn-mrpack" class="download-btn mrpack-btn disabled" href="#">Searching...</a>
-            <span id="text-mrpack" class="status-text"></span>
+            <a id="btn-mrpack" class="mc-btn disabled" href="#">
+                Loading...
+            </a>
+            <span id="text-mrpack" class="filename-label"></span>
         </div>
+
     </div>
 
     <script>
         // -------------------------------------------------------
-        // CONFIGURATION: CHANGE THESE TWO LINES
+        // CONFIGURATION
         // -------------------------------------------------------
         const githubUsername = "ConJaBst";
-        const repoName = "AshPire";
+        const repoName = "AshSpire";
         // -------------------------------------------------------
 
         const apiUrl = `https://api.github.com/repos/${githubUsername}/${repoName}/contents/`;
-        
         const btnZip = document.getElementById('btn-zip');
         const textZip = document.getElementById('text-zip');
-        
         const btnMrpack = document.getElementById('btn-mrpack');
         const textMrpack = document.getElementById('text-mrpack');
 
         fetch(apiUrl)
-            .then(response => {
-                if (!response.ok) throw new Error('Repo not found');
-                return response.json();
+            .then(res => {
+                if (!res.ok) throw new Error('Repo not found');
+                return res.json();
             })
             .then(data => {
-                // 1. Find the ZIP file
+                // ZIP LOGIC
                 const zipFile = data.find(item => item.name.endsWith('.zip'));
                 if (zipFile) {
                     btnZip.href = zipFile.download_url;
-                    btnZip.innerText = "Download .ZIP";
+                    btnZip.innerText = "DOWNLOAD ZIP";
                     btnZip.classList.remove('disabled');
                     textZip.innerText = zipFile.name;
                 } else {
-                    btnZip.innerText = "ZIP Not Found";
+                    btnZip.innerText = "NO ZIP FOUND";
                 }
 
-                // 2. Find the MRPACK file
+                // MRPACK LOGIC
                 const mrpackFile = data.find(item => item.name.endsWith('.mrpack'));
                 if (mrpackFile) {
                     btnMrpack.href = mrpackFile.download_url;
-                    btnMrpack.innerText = "Download .MRPACK";
+                    btnMrpack.innerText = "DOWNLOAD MRPACK";
                     btnMrpack.classList.remove('disabled');
                     textMrpack.innerText = mrpackFile.name;
                 } else {
-                    btnMrpack.innerText = "MrPack Not Found";
+                    btnMrpack.innerText = "NO MRPACK FOUND";
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                btnZip.innerText = "Error";
-                btnMrpack.innerText = "Error";
+            .catch(err => {
+                console.error(err);
+                btnZip.innerText = "ERROR";
+                btnMrpack.innerText = "ERROR";
             });
     </script>
 
