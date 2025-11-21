@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Download Page</title>
+    <title>Download Modpack</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,29 +11,119 @@
             padding: 50px;
             background-color: #f4f4f9;
         }
+        h1 { margin-bottom: 10px; }
+        p { color: #666; margin-bottom: 30px; }
+        
+        /* Container to hold buttons side-by-side */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px; /* Space between buttons */
+            flex-wrap: wrap;
+        }
+
         .download-btn {
             display: inline-block;
-            background-color: #2ea44f;
-            color: white;
             padding: 15px 30px;
             text-decoration: none;
-            font-size: 18px;
+            font-size: 16px;
             border-radius: 5px;
-            margin-top: 20px;
+            color: white;
+            transition: background-color 0.3s;
+            min-width: 200px;
         }
-        .download-btn:hover {
-            background-color: #22863a;
+
+        /* Specific colors for each button */
+        .zip-btn { background-color: #FFB100; } /* Green */
+        .zip-btn:hover { background-color: #22863a; }
+
+        .mrpack-btn { background-color: #00FF2F; } /* Blue */
+        .mrpack-btn:hover { background-color: #005f91; }
+
+        /* Disabled state (grayed out) */
+        .download-btn.disabled {
+            background-color: #ccc;
+            pointer-events: none;
+            cursor: default;
+        }
+
+        .status-text {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #555;
+            display: block;
         }
     </style>
 </head>
 <body>
 
-    <h1>Welcome to My Download Site</h1>
-    <p>Click the button below to download the file.</p>
+    <h1>Download Latest Version</h1>
+    <p>Select the format you need below:</p>
 
-    <!-- REPLACE 'your-file.zip' WITH YOUR ACTUAL FILENAME -->
-    <a href="AshSpire 3.5.0 Peenarvolution.mrpack" class="download-btn" download>Download mrpack</a>
-    <a href="AshSpire 3.5.0 Peenarvolution.mrpack" class="download-btn" download>Download mrpack</a>
+    <div class="button-container">
+        <!-- ZIP BUTTON -->
+        <div>
+            <a id="btn-zip" class="download-btn zip-btn disabled" href="#">Searching...</a>
+            <span id="text-zip" class="status-text"></span>
+        </div>
+
+        <!-- MRPACK BUTTON -->
+        <div>
+            <a id="btn-mrpack" class="download-btn mrpack-btn disabled" href="#">Searching...</a>
+            <span id="text-mrpack" class="status-text"></span>
+        </div>
+    </div>
+
+    <script>
+        // -------------------------------------------------------
+        // CONFIGURATION: CHANGE THESE TWO LINES
+        // -------------------------------------------------------
+        const githubUsername = "ConJaBst";
+        const repoName = "AshPire";
+        // -------------------------------------------------------
+
+        const apiUrl = `https://api.github.com/repos/${githubUsername}/${repoName}/contents/`;
+        
+        const btnZip = document.getElementById('btn-zip');
+        const textZip = document.getElementById('text-zip');
+        
+        const btnMrpack = document.getElementById('btn-mrpack');
+        const textMrpack = document.getElementById('text-mrpack');
+
+        fetch(apiUrl)
+            .then(response => {
+                if (!response.ok) throw new Error('Repo not found');
+                return response.json();
+            })
+            .then(data => {
+                // 1. Find the ZIP file
+                const zipFile = data.find(item => item.name.endsWith('.zip'));
+                if (zipFile) {
+                    btnZip.href = zipFile.download_url;
+                    btnZip.innerText = "Download .ZIP";
+                    btnZip.classList.remove('disabled');
+                    textZip.innerText = zipFile.name;
+                } else {
+                    btnZip.innerText = "ZIP Not Found";
+                }
+
+                // 2. Find the MRPACK file
+                const mrpackFile = data.find(item => item.name.endsWith('.mrpack'));
+                if (mrpackFile) {
+                    btnMrpack.href = mrpackFile.download_url;
+                    btnMrpack.innerText = "Download .MRPACK";
+                    btnMrpack.classList.remove('disabled');
+                    textMrpack.innerText = mrpackFile.name;
+                } else {
+                    btnMrpack.innerText = "MrPack Not Found";
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                btnZip.innerText = "Error";
+                btnMrpack.innerText = "Error";
+            });
+    </script>
 
 </body>
 </html>
