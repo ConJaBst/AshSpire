@@ -22,6 +22,7 @@
             justify-content: center;
             font-family: 'VT323', monospace; /* Pixel font */
             overflow: hidden; /* Prevents scrollbars from the blur effect */
+            background-color: #1a1a1a; 
         }
 
         /* The pseudo-element handles the blurred background image */
@@ -31,6 +32,7 @@
             top: -10px; left: -10px; right: -10px; bottom: -10px; /* Extra overlap to hide blur edges */
             background: url('background.png') no-repeat center center;
             background-size: cover;
+            
             
             /* THE MAGIC: Darken and Blur */
             filter: blur(8px) brightness(0.5); 
