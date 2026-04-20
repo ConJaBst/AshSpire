@@ -9,9 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 
     <style>
-        /* -----------------------------------------------------
-           1. BACKGROUND & LAYOUT
-        ----------------------------------------------------- */
         body {
             margin: 0;
             padding: 0;
@@ -20,40 +17,31 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-family: 'VT323', monospace; /* Pixel font */
-            overflow: hidden; /* Prevents scrollbars from the blur effect */
+            font-family: 'VT323', monospace;
+            overflow: hidden;
             background-color: #1a1a1a; 
         }
 
-        /* The pseudo-element handles the blurred background image */
         body::before {
             content: "";
             position: fixed;
-            top: -10px; left: -10px; right: -10px; bottom: -10px; /* Extra overlap to hide blur edges */
+            top: -10px; left: -10px; right: -10px; bottom: -10px;
             background: url('background.png') no-repeat center center;
             background-size: cover;
-            
-            
-            /* THE MAGIC: Darken and Blur */
             filter: blur(8px) brightness(0.5); 
             z-index: -1;
         }
 
-        /* -----------------------------------------------------
-           2. LOGO IMAGE
-        ----------------------------------------------------- */
         .logo-container {
             margin-bottom: 40px;
             max-width: 90%;
         }
 
         .logo-img {
-            max-width: 600px; /* Adjust max width as needed */
+            max-width: 600px;
             width: 100%;
             height: auto;
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5)); /* Shadow behind logo */
-            
-            /* OPTIONAL: Slight bobbing animation like the Minecraft title */
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
             animation: bob 3s infinite ease-in-out;
         }
 
@@ -62,9 +50,6 @@
             50% { transform: translateY(-10px); }
         }
 
-        /* -----------------------------------------------------
-           3. MINECRAFT BUTTONS
-        ----------------------------------------------------- */
         .button-container {
             display: flex;
             gap: 20px;
@@ -79,36 +64,27 @@
             padding: 15px 10px;
             text-decoration: none;
             color: #e0e0e0;
-            font-size: 28px; /* Large pixel font size */
+            font-size: 28px;
             text-align: center;
-            text-shadow: 2px 2px 0px #3f3f3f; /* Text drop shadow */
+            text-shadow: 2px 2px 0px #3f3f3f;
             cursor: pointer;
-            
-            /* The Minecraft Stone Texture color */
             background-color: #7d7d7d; 
-
-            /* The 3D Bevel Border Effect */
             border: 2px solid;
-            border-color: #fff #555 #555 #fff; /* Light Top/Left, Dark Bottom/Right */
+            border-color: #fff #555 #555 #fff;
             box-shadow: inset -2px -2px 0px #555, inset 2px 2px 0px #fff, 0px 6px 0px #00000050;
-            
             transition: transform 0.1s;
         }
 
-        /* Hover State (Minecraft buttons turn bluish) */
         .mc-btn:hover {
-            background-color: #6e85a8; /* The hover blue tint */
-            border-color: #fff #555 #555 #fff;
-            color: #ffffa0; /* Yellow text on hover */
+            background-color: #6e85a8;
+            color: #ffffa0;
         }
 
-        /* Active State (Clicking down) */
         .mc-btn:active {
-            transform: translateY(4px); /* Push button down */
+            transform: translateY(4px);
             box-shadow: inset -2px -2px 0px #555, inset 2px 2px 0px #fff, 0px 2px 0px #00000050;
         }
 
-        /* Disabled State */
         .mc-btn.disabled {
             background-color: #555;
             color: #888;
@@ -124,18 +100,14 @@
             color: #ddd;
             text-shadow: 1px 1px 0 #000;
         }
-
     </style>
 </head>
 <body>
 
-    <!-- TITLE LOGO -->
     <div class="logo-container">
-        <!-- Replace 'logo.png' with your actual file -->
         <img src="logo.png" alt="Modpack Logo" class="logo-img">
     </div>
 
-    <!-- BUTTONS -->
     <div class="button-container">
         
         <!-- ZIP BUTTON -->
@@ -154,21 +126,30 @@
             <span id="text-mrpack" class="filename-label"></span>
         </div>
 
+        <!-- PRISM INSTANCE BUTTON -->
+        <div>
+            <a id="btn-prism" class="mc-btn disabled" href="#">
+                Loading...
+            </a>
+            <span id="text-prism" class="filename-label"></span>
+        </div>
+
     </div>
 
     <script>
-        // -------------------------------------------------------
-        // CONFIGURATION
-        // -------------------------------------------------------
         const githubUsername = "ConJaBst";
         const repoName = "AshSpire";
-        // -------------------------------------------------------
 
         const apiUrl = `https://api.github.com/repos/${githubUsername}/${repoName}/contents/`;
+
         const btnZip = document.getElementById('btn-zip');
         const textZip = document.getElementById('text-zip');
+
         const btnMrpack = document.getElementById('btn-mrpack');
         const textMrpack = document.getElementById('text-mrpack');
+
+        const btnPrism = document.getElementById('btn-prism');
+        const textPrism = document.getElementById('text-prism');
 
         fetch(apiUrl)
             .then(res => {
@@ -176,8 +157,12 @@
                 return res.json();
             })
             .then(data => {
-                // ZIP LOGIC
-                const zipFile = data.find(item => item.name.endsWith('.zip'));
+
+                // ZIP (exclude PrismInstance.zip)
+                const zipFile = data.find(item => 
+                    item.name.endsWith('.zip') && item.name !== 'PrismInstance.zip'
+                );
+
                 if (zipFile) {
                     btnZip.href = zipFile.download_url;
                     btnZip.innerText = "DOWNLOAD ZIP";
@@ -187,8 +172,9 @@
                     btnZip.innerText = "NO ZIP FOUND";
                 }
 
-                // MRPACK LOGIC
+                // MRPACK
                 const mrpackFile = data.find(item => item.name.endsWith('.mrpack'));
+
                 if (mrpackFile) {
                     btnMrpack.href = mrpackFile.download_url;
                     btnMrpack.innerText = "DOWNLOAD MRPACK";
@@ -197,11 +183,24 @@
                 } else {
                     btnMrpack.innerText = "NO MRPACK FOUND";
                 }
+
+                // PRISM INSTANCE (exact match)
+                const prismFile = data.find(item => item.name === 'PrismInstance.zip');
+
+                if (prismFile) {
+                    btnPrism.href = prismFile.download_url;
+                    btnPrism.innerText = "DOWNLOAD PRISM INSTANCE";
+                    btnPrism.classList.remove('disabled');
+                    textPrism.innerText = prismFile.name;
+                } else {
+                    btnPrism.innerText = "NO PRISM INSTANCE";
+                }
             })
             .catch(err => {
                 console.error(err);
                 btnZip.innerText = "ERROR";
                 btnMrpack.innerText = "ERROR";
+                btnPrism.innerText = "ERROR";
             });
     </script>
 
